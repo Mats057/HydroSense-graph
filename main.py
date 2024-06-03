@@ -2,6 +2,8 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 from scipy.interpolate import make_interp_spline
+import tkinter as tk
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 # Gerar dados predefinidos para teste
 np.random.seed(0)
@@ -39,6 +41,8 @@ def mostrar_dados():
 
     # Plotar gráficos
     fig, axs = plt.subplots(2, 1, figsize=(10, 8), sharex=True)
+    fig.suptitle('Análise de Dados do Mar', fontsize=16, weight='bold')  # Título da janela
+    fig.patch.set_facecolor('#f0f0f0')  # Cor de fundo da janela
 
     # Suavizar dados
     x = np.arange(len(dados))
@@ -51,6 +55,7 @@ def mostrar_dados():
     axs[0].set_title('Temperaturas do Mar', fontsize=14, weight='bold')
     axs[0].set_ylabel('Temperatura (°C)', fontsize=12)
     axs[0].grid(True, linestyle='--', alpha=0.7)
+    axs[0].set_facecolor('#eafff5')  # Cor de fundo do gráfico de temperaturas
 
     # Gráfico de pH
     axs[1].plot(x_smooth, ph_smooth, color='g', lw=2)
@@ -59,9 +64,22 @@ def mostrar_dados():
     axs[1].set_xlabel('Medição', fontsize=12)
     axs[1].set_ylabel('pH', fontsize=12)
     axs[1].grid(True, linestyle='--', alpha=0.7)
+    axs[1].set_facecolor('#fff4e6')  # Cor de fundo do gráfico de pH
 
     plt.tight_layout(pad=2.0)
-    plt.show()
+    plt.subplots_adjust(top=0.9)  # Ajuste para não sobrepor o título
+
+    # Integrar com tkinter
+    root = tk.Tk()
+    root.wm_title("Gráficos de Análise do Mar")
+    
+    root.configure(bg='#f0f0f0')  # Cor de fundo da janela tkinter
+
+    canvas = FigureCanvasTkAgg(fig, master=root)
+    canvas.draw()
+    canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
+
+    tk.mainloop()
 
 # Exemplo de uso
 if __name__ == "__main__":

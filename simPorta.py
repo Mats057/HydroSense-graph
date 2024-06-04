@@ -1,3 +1,5 @@
+# Esse arquivo serve para simular a porta serial do Arduino, enviando dados de temperatura e pH de forma aleatória. Para usar, basta baixar um emulador de portas digitais como o com0com e executar o arquivo simPorta.py, dessa forma ele começará a enviar dados simulados para a porta serial COM5. O código é bem simples e não requer nenhuma instalação adicional, apenas o Python e a biblioteca pyserial.
+
 import serial
 import time
 import random

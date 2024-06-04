@@ -7,6 +7,8 @@ import serial
 import msvcrt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from colorama import init, Fore, Style
+import time
+import random
 
 # Inicializar o colorama
 init(autoreset=True)
@@ -19,41 +21,74 @@ max_temp = 30.0
 min_ph = 7.5
 max_ph = 8.5
 
+# Valores iniciais de temperatura e pH para o simulador
+current_temperature = 20.0
+current_ph = 8.0
+
 # Função para adicionar dados
 def adicionar_dados(temperatura, ph):
     temperaturas.append(temperatura)
     ph_values.append(ph)
 
+# Função para gerar valores realistas
+def generate_realistic_values(current_temp, current_ph):
+    temperature_variation = random.uniform(-0.05, 0.05)
+    new_temperature = current_temp + temperature_variation
+    new_temperature = max(10.0, min(30.0, new_temperature))
+
+    ph_variation = random.uniform(-0.01, 0.01)
+    new_ph = current_ph + ph_variation
+    new_ph = max(7.5, min(8.5, new_ph))
+
+    return new_temperature, new_ph
+
 # Função para coletar dados da porta serial
-def coletar_dados():
+def coletar_dados(use_simulator=False):
     print(Fore.CYAN + "Dados de Telemetria do Arduino (Digite 'q' para sair):\n")
-    ser = configurar_porta_serial()
 
-    if ser is None:
-        return
-
-    while True:
-        try:
-            data = ser.readline().decode('utf-8').strip()
-            temperatura, ph = data.split(',')
-            temperatura = float(temperatura)
-            ph = float(ph)
-            if temperatura == '' or ph == '':
-                continue
-            elif temperatura < min_temp or temperatura > max_temp or ph < min_ph or ph > max_ph:
-                print(Fore.RED + f"AVISO! DADOS FORA DO LIMITE!!!, Temperatura: {temperatura} °C, pH: {ph}")
-            else:
-                print(Fore.GREEN + f"Temperatura: {temperatura} °C, pH: {ph}, Dados dentro do aceitável.")
-            adicionar_dados(float(temperatura), float(ph))
-        except ValueError:
-            print(Fore.RED + "Erro ao ler dados da porta serial.")
-            break
-        if msvcrt.kbhit():
-            user_input = msvcrt.getch().decode('utf-8')
-            if user_input == 'q' or user_input == 'Q':
+    if use_simulator:
+        global current_temperature, current_ph
+        while True:
+            try:
+                current_temperature, current_ph = generate_realistic_values(current_temperature, current_ph)
+                data = f"{current_temperature:.2f},{current_ph:.2f}"
+                temperatura, ph = map(float, data.split(','))
+                if temperatura < min_temp or temperatura > max_temp or ph < min_ph or ph > max_ph:
+                    print(Fore.RED + f"AVISO! DADOS FORA DO LIMITE!!!, Temperatura: {temperatura} °C, pH: {ph}")
+                else:
+                    print(Fore.GREEN + f"Temperatura: {temperatura} °C, pH: {ph}, Dados dentro do aceitável.")
+                adicionar_dados(temperatura, ph)
+                time.sleep(1)
+            except ValueError:
+                print(Fore.RED + "Erro ao gerar dados simulados.")
                 break
+            if msvcrt.kbhit():
+                user_input = msvcrt.getch().decode('utf-8')
+                if user_input == 'q' or user_input == 'Q':
+                    break
+    else:
+        ser = configurar_porta_serial()
+        if ser is None:
+            return
 
-    ser.close()
+        while True:
+            try:
+                data = ser.readline().decode('utf-8').strip()
+                temperatura, ph = map(float, data.split(','))
+                if temperatura < min_temp or temperatura > max_temp or ph < min_ph or ph > max_ph:
+                    print(Fore.RED + f"AVISO! DADOS FORA DO LIMITE!!!, Temperatura: {temperatura} °C, pH: {ph}")
+                else:
+                    print(Fore.GREEN + f"Temperatura: {temperatura} °C, pH: {ph}, Dados dentro do aceitável.")
+                adicionar_dados(temperatura, ph)
+            except ValueError:
+                print(Fore.RED + "Erro ao ler dados da porta serial.")
+                break
+            if msvcrt.kbhit():
+                user_input = msvcrt.getch().decode('utf-8')
+                if user_input == 'q' or user_input == 'Q':
+                    break
+
+        ser.close()
 
 # Função para suavizar linhas
 def suavizar_linha(x, y, num_points=1000):
@@ -152,29 +187,31 @@ def configurar_porta_serial():
     baud_rate = int(baud_rate)
     return serial.Serial(porta, baud_rate, timeout=1)
 
-
 # Função principal
 if __name__ == "__main__":
     while True:
         print(Fore.CYAN + "\nMenu:")
-        print(Fore.CYAN + "1. Adicionar dados")
-        print(Fore.CYAN + "2. Mostrar dados e gráficos")
-        print(Fore.CYAN + "3. Configurar valores mínimos e máximos de temperatura e pH")
-        print(Fore.CYAN + "4. Limpar dados")
-        print(Fore.CYAN + "5. Sair")
+        print(Fore.CYAN + "1. Adicionar dados (Real)")
+        print(Fore.CYAN + "2. Adicionar dados (Simulador)")
+        print(Fore.CYAN + "3. Mostrar dados e gráficos")
+        print(Fore.CYAN + "4. Configurar valores mínimos e máximos de temperatura e pH")
+        print(Fore.CYAN + "5. Limpar dados")
+        print(Fore.CYAN + "6. Sair")
         opcao = input(Fore.YELLOW + "Escolha uma opção: ")
 
         if opcao == "1":
-            coletar_dados()
+            coletar_dados(use_simulator=False)
         elif opcao == "2":
-            mostrar_dados()
+            coletar_dados(use_simulator=True)
         elif opcao == "3":
-            configurar_min_max()
+            mostrar_dados()
         elif opcao == "4":
+            configurar_min_max()
+        elif opcao == "5":
             temperaturas.clear()
             ph_values.clear()
             print(Fore.GREEN + "Dados limpos.")
-        elif opcao == "5":
+        elif opcao == "6":
             break
         else:
             print(Fore.RED + "Opção inválida. Por favor, escolha uma opção válida.")

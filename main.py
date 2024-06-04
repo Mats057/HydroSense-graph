@@ -3,19 +3,54 @@ import pandas as pd
 import numpy as np
 from scipy.interpolate import make_interp_spline
 import tkinter as tk
+import serial
+import msvcrt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 # Gerar dados predefinidos para teste
-np.random.seed(0)
-num_dados = 120
-temperaturas = list(np.random.uniform(25, 30, num_dados) + np.sin(np.linspace(0, 20, num_dados)) * 5)
-ph_values = list(np.random.uniform(7.0, 8.0, num_dados) - np.cos(np.linspace(0, 20, num_dados)) * 0.5)
+temperaturas = []
+ph_values = []
+min_temp = 20.0
+max_temp = 30.0
+min_ph = 7.5
+max_ph = 8.5
 
 # Função para adicionar dados
 def adicionar_dados(temperatura, ph):
     temperaturas.append(temperatura)
     ph_values.append(ph)
     print(f"Dados adicionados: Temperatura = {temperatura}, pH = {ph}")
+
+def coletar_dados():
+    print("Dados de Telemetria do Arduino (Digite 'q' para sair):\n")
+    # Inicializar comunicação serial
+    ser = configurar_porta_serial()
+
+    if ser is None:
+        return
+
+    # Ler dados da porta serial
+    while True:
+        try:
+            data = ser.readline().decode('utf-8').strip()
+            temperatura, ph = data.split(',')
+            temperatura = float(temperatura)
+            ph = float(ph)
+            if temperatura == '' or ph == '':
+                continue
+            elif temperatura < min_temp or temperatura > max_temp or ph < min_ph or ph > max_ph:
+                print("AVISO! OS DADOS ESTÃO FORA DO LIMITE ESPERADO.")
+            adicionar_dados(float(temperatura), float(ph))
+        except ValueError:
+            print("Erro ao ler dados da porta serial.")
+            break
+        if msvcrt.kbhit():
+            user_input = msvcrt.getch().decode('utf-8')
+            if user_input == 'q' or user_input == 'Q':  # Digite 'q' para sair
+                break
+
+    # Fechar comunicação serial
+    ser.close()
 
 # Função para suavizar linhas
 def suavizar_linha(x, y, num_points=1000):
@@ -79,7 +114,33 @@ def mostrar_dados():
     canvas.draw()
     canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
 
-    tk.mainloop()
+    # Função callback para quando a janela for fechada
+    def on_closing():
+        root.quit()
+        root.destroy()
+
+    root.protocol("WM_DELETE_WINDOW", on_closing)
+    root.mainloop()
+
+def configurar_min_max():
+    global min_temp, max_temp, min_ph, max_ph
+    try:
+        min_temp = float(input("Digite o valor mínimo de temperatura (°C): "))
+        max_temp = float(input("Digite o valor máximo de temperatura (°C): "))
+        min_ph = float(input("Digite o valor mínimo de pH: "))
+        max_ph = float(input("Digite o valor máximo de pH: "))
+        print("Valores mínimos e máximos configurados com sucesso.")
+    except ValueError:
+        print("Digite um valor numérico válido.")
+
+def configurar_porta_serial():
+    porta = input("Digite o nome da porta serial (ex.: COM4): ")
+    baud_rate = input("Digite a taxa de transmissão (baud rate): ")
+    if(not baud_rate.isdigit() or int(baud_rate) <= 0):
+        print("Digite um valor válido para a taxa de transmissão.")
+        return None
+    baud_rate = int(baud_rate)
+    return serial.Serial(porta, baud_rate, timeout=1)
 
 # Exemplo de uso
 if __name__ == "__main__":
@@ -87,19 +148,17 @@ if __name__ == "__main__":
         print("\nMenu:")
         print("1. Adicionar dados")
         print("2. Mostrar dados e gráficos")
-        print("3. Sair")
+        print("3. Configurar valores mínimos e máximos de temperatura e pH")
+        print("4. Sair")
         opcao = input("Escolha uma opção: ")
 
         if opcao == "1":
-            try:
-                temperatura = float(input("Insira a temperatura do mar (°C): "))
-                ph = float(input("Insira o pH do mar: "))
-                adicionar_dados(temperatura, ph)
-            except ValueError:
-                print("Entrada inválida. Por favor, insira números válidos.")
+            coletar_dados()
         elif opcao == "2":
             mostrar_dados()
         elif opcao == "3":
+            configurar_min_max()
+        elif opcao == "4":
             break
         else:
             print("Opção inválida. Por favor, escolha uma opção válida.")

@@ -7,10 +7,10 @@ import serial
 import msvcrt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
-# Gerar dados predefinidos para teste
+# Definindo listas para armazenar os dados
 temperaturas = []
 ph_values = []
-min_temp = 20.0
+min_temp = 10.0
 max_temp = 30.0
 min_ph = 7.5
 max_ph = 8.5
@@ -21,6 +21,7 @@ def adicionar_dados(temperatura, ph):
     ph_values.append(ph)
     print(f"Dados adicionados: Temperatura = {temperatura}, pH = {ph}")
 
+# Função para coletar dados da porta serial
 def coletar_dados():
     print("Dados de Telemetria do Arduino (Digite 'q' para sair):\n")
     # Inicializar comunicação serial
@@ -122,6 +123,7 @@ def mostrar_dados():
     root.protocol("WM_DELETE_WINDOW", on_closing)
     root.mainloop()
 
+# Função para configurar valores mínimos e máximos de temperatura e pH
 def configurar_min_max():
     global min_temp, max_temp, min_ph, max_ph
     try:
@@ -133,6 +135,7 @@ def configurar_min_max():
     except ValueError:
         print("Digite um valor numérico válido.")
 
+# Função para configurar a porta serial
 def configurar_porta_serial():
     porta = input("Digite o nome da porta serial (ex.: COM4): ")
     baud_rate = input("Digite a taxa de transmissão (baud rate): ")
@@ -142,7 +145,7 @@ def configurar_porta_serial():
     baud_rate = int(baud_rate)
     return serial.Serial(porta, baud_rate, timeout=1)
 
-# Exemplo de uso
+# Função principal
 if __name__ == "__main__":
     while True:
         print("\nMenu:")

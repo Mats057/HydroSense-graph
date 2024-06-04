@@ -2,8 +2,10 @@ import serial
 import time
 import random
 
+# Código em Python para simular a comunicação serial do Arduino com o programa principal
+
 # Configurar a porta serial (ajuste o nome da porta conforme necessário)
-ser = serial.Serial('COM5', 9600, timeout=1)  # Substitua 'COM3' pelo nome da sua porta serial
+ser = serial.Serial('COM5', 9600, timeout=1)
 
 def generate_random_values():
     # Gerar valores aleatórios para temperatura e pH

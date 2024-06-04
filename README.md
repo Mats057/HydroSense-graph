@@ -80,4 +80,4 @@ Para configurar a porta serial e a taxa de transmissão, siga os passos abaixo:
 
 ---
 
-Agradecemos por utilizar o HydroSense-graph! Se tiver alguma dúvida ou sugestão, sinta-se à vontade para abrir entrar em contato.
+Agradecemos por utilizar o HydroSense-graph! Se tiver alguma dúvida ou sugestão, sinta-se à vontade para entrar em contato.

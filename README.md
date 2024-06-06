@@ -1,6 +1,6 @@
 ### HydroSense-graph
 
-Bem-vindo ao projeto HydroSense-graph! Este projeto consiste na criação de um software em Python para coletar, armazenar e visualizar informações de pH e temperatura da água usando o dispositivo HydroSense. O objetivo é fornecer uma interface intuitiva para monitorar a qualidade do oceano em tempo real.
+Bem-vindo ao projeto HydroSense-graph! Este projeto consiste na criação de um software em Python para coletar, armazenar e visualizar informações de pH e temperatura da água usando o dispositivo [HydroSense](https://github.com/Mats057/HydroSense). O objetivo é fornecer uma interface intuitiva para monitorar a qualidade do oceano em tempo real. Para saber mais sobre o projeto e a importância dele, acesse: https://mats057.github.io/HydroSense-Landing/ ou o [repositório do projeto](https://github.com/Mats057/HydroSense) aqui no GitHub.
 
 ### Índice
 
@@ -29,6 +29,7 @@ Para instalar e configurar o HydroSense-graph, siga os passos abaixo:
     ```bash
     pip install -r requirements.txt
     ```
+    `Detalhe: Você precisa do pip instalado para executar esse comando!`
 
 ### Uso
 

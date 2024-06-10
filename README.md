@@ -33,6 +33,8 @@ Para instalar e configurar o HydroSense-graph, siga os passos abaixo:
 
 ### Uso
 
+<img src= "./hydroSense-graph.jpg" alt="Imagem do funcionamento">
+
 Para usar o HydroSense-graph, siga os passos abaixo:
 
 1. **Inicie o programa:**
